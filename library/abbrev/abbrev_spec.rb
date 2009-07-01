@@ -1,31 +1,51 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 require 'abbrev'
 
-#test both Abbrev::abbrev and Array#abbrev in
-#the same manner, as they're more or less aliases
-#of one another
-
-[["Abbrev::abbrev", lambda {|a| Abbrev::abbrev(a)}],
- ["Array#abbrev", lambda {|a| a.abbrev}]
-].each do |(name, func)|
-  
-  describe name do
-    it "returns a hash of all unambiguous abbreviations of the array of strings passed in" do
-      func.call(['ruby', 'rules']).should == {"rub" => "ruby",
-                                       "ruby" => "ruby",
-                                       "rul" => "rules",
-                                       "rule" => "rules",
-                                       "rules" => "rules"}
-      
-      func.call(["car", "cone"]).should == {"ca" => "car", 
-                                       "car" => "car", 
-                                       "co" => "cone", 
-                                       "con" => "cone", 
-                                       "cone" => "cone"}                         
-    end
+describe "Abbrev::abbrev" do
+  it "returns a hash of all unambiguous abbreviations of the array of strings passed in" do
+    Abbrev::abbrev(['ruby', 'rules']).should == {"rub" => "ruby",
+                                     "ruby" => "ruby",
+                                     "rul" => "rules",
+                                     "rule" => "rules",
+                                     "rules" => "rules"}
     
-    it "returns an empty hash when called on an empty array" do
-      func.call([]).should == {}
-    end
+    Abbrev::abbrev(["car", "cone"]).should == {"ca" => "car", 
+                                     "car" => "car", 
+                                     "co" => "cone", 
+                                     "con" => "cone", 
+                                     "cone" => "cone"}                         
+  end
+  
+  it "passing in a pattern as an optional parameter should filter the abbreviations returned in the hash" do
+    Abbrev::abbrev(['ruby','rules'],'rub').should == {"ruby"=>"ruby", "rub"=>"ruby"}    
+  end
+  
+  it "returns an empty hash when called on an empty array" do
+    Abbrev::abbrev([]).should == {}
   end
 end
+
+describe "Array#abbrev" do
+  it "returns a hash of all unambiguous abbreviations of the array of strings passed in" do
+    ['ruby', 'rules'].abbrev.should == {"rub" => "ruby",
+                                     "ruby" => "ruby",
+                                     "rul" => "rules",
+                                     "rule" => "rules",
+                                     "rules" => "rules"}
+    
+    ["car", "cone"].abbrev.should == {"ca" => "car", 
+                                     "car" => "car", 
+                                     "co" => "cone", 
+                                     "con" => "cone", 
+                                     "cone" => "cone"}                         
+  end
+  
+  it "passing in a pattern as an optional parameter should filter the abbreviations returned in the hash" do
+    ['ruby','rules'].abbrev('rub').should == {"ruby"=>"ruby", "rub"=>"ruby"}    
+  end
+  
+  it "returns an empty hash when called on an empty array" do
+    [].abbrev.should == {}
+  end
+end
+
